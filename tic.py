@@ -1,12 +1,16 @@
 import random
 import numpy as np
 
+random.seed(1)
+
+
 # create a 3x3 board
 def clean_board():
     board = np.zeros((3,3))
     print(board)
 # who goes first?
 # first_player = random.choice(players)
+player_one = 1
 
 
 # board = np.ones((3,3))
@@ -40,13 +44,25 @@ def check_winner():
         if abs(np.trace(np.fliplr(board))) == board_length: 
             print('diagonal winner!')
             break
-def valid_moves():
+def moves_validate():
     return np.transpose(np.where(board==0))
+
+def moves_selection():
+    possible_moves = moves_validate()
+    if len(possible_moves) > 0:
+        select_move = random.choice(moves_validate())
+        print(select_move)
+        select_move = list(select_move)
+        board[select_move[0],select_move[1]] = player_one
+    else:
+        print('no valid moves, tie.')
+
 
 check_winner()
 
-
-print(valid_moves())
+print(moves_validate())
+moves_selection()
 print(board)
+
 
 
