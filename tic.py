@@ -31,8 +31,8 @@ def check_winner():
             game_over = True
             print('game over')
             quit()
+            
         # diagonal winner? \\ top left to bottom right
-
         if abs(np.trace(board)) == board_length: 
             print('diagonal winner!')
             game_over = True
