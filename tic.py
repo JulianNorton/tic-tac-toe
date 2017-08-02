@@ -13,6 +13,30 @@ player_two = -1
 board = clean_board()
 board_length = len(board)
 
+def play_game(p1,p2,env, draw=False):
+    # loop until game is over
+    current_player = None
+    '''
+    while not env.game_over()
+    alternate between players
+    p1 goes first
+
+    if current_player == player_one:
+        current_player = player_two
+    else:
+        current_player = player_one
+    
+    if board_state:
+        if draw
+
+    draw board
+    current_player.take_action(env)
+
+    p1.update(env)
+    p2.update(env)
+    '''
+    print('test')
+
 def check_winner():
     # WINNER CHECK
     game_over = False
