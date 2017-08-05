@@ -1,12 +1,38 @@
 import random
 import numpy as np
 
-random.seed(1)
+random.seed(0)
 
 # create a square board
 def clean_board():
     return np.zeros((3,3))
 
+
+# Agent, Environment, State, Action, Reward, Episodes, Terminal State
+
+# -------------------------------
+# AGENT
+# -------------------------------
+
+class Agent:
+    def __init__(self, player, eps=0.1, alpha=0.5):
+        self.eps = eps # probability of choosing random action instead of greedy
+        self.alpha = alpha # learning rate
+        self.state_history = []
+        self.player = player
+
+    def reset_history(self):
+        self.state_history = []
+
+    def take_action():
+        # Finds the '0's on the board and returns their location via indices
+        select_move = random.choice(np.transpose(np.where(board==0)))
+        select_move = list(select_move)
+        board[select_move[0],select_move[1]] = player
+
+# -------------------------------
+
+player_one = Agent(player = -1).player
 player_one = 1
 player_two = -1
 
@@ -16,25 +42,7 @@ board_length = len(board)
 def play_game(p1,p2,env, draw=False):
     # loop until game is over
     current_player = None
-    '''
-    while not env.game_over()
-    alternate between players
-    p1 goes first
 
-    if current_player == player_one:
-        current_player = player_two
-    else:
-        current_player = player_one
-    
-    if board_state:
-        if draw
-
-    draw board
-    current_player.take_action(env)
-
-    p1.update(env)
-    p2.update(env)
-    '''
     print('test')
 
 def check_winner():
