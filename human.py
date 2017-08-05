@@ -1,6 +1,6 @@
 class Human:
     def __init__(self):
-    pass
+        pass
 
     def set_symbol(self, symbol):
         self.symbol = symbol

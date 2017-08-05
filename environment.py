@@ -1,7 +1,7 @@
 import numpy as np
 
 class Environment:
-    def __init__(self):
+    def __init__(self, board_length):
         self.board = np.zeros((board_length, board_length))
         self.player_one = -1 # 'x'
         self.player_two = 1 # '0'
@@ -20,6 +20,7 @@ def get_state(self):
     # not needed?
 
 def game_over(self, force_recalculate=False):
+    # if not force_recalculate and self.ended:
     if not force_recalculate and self.ended:
         return self.ended
 
