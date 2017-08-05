@@ -1,4 +1,4 @@
-class Agent:
+class agent:
     def __init__(self, epsilon, alpha):
         self.epsilon = epsilon # probability of choosing random action
         self.alpha = alpha # learning rate for update equation
