@@ -3,6 +3,8 @@ import numpy as np
 
 random.seed(0)
 
+verbose = True
+
 # Agent, Environment, State, Action, Reward, Episodes, Terminal State
 
 # -------------------------------
@@ -24,35 +26,35 @@ class Environment():
             if abs(np.sum(self.board_state[i])) == self.board_length:
                 self.winner = True
                 self.game_over = True
-                print('\n', 'horizontal win', self.game_over)
+                if verbose == True : print('\n', 'horizontal win', self.game_over)
                 return True
 
             # vertical winner?
             if abs(np.sum(self.board_state[:,i])) == self.board_length:
                 self.winner = True
                 self.game_over = True
-                print('\n', 'vertical win', self.game_over)
+                if verbose == True : print('\n', 'vertical win', self.game_over)
                 return True
                 
             # diagonal winner? \\ top left to bottom right
             if abs(np.trace(self.board_state)) == self.board_length: 
                 self.winner = True
                 self.game_over = True
-                print('\n', 'diagonal win \\ ', self.game_over)
+                if verbose == True : print('\n', 'diagonal win \\ ', self.game_over)
                 return True
 
             # diagonal winner? // top right to bottom left
             if abs(np.trace(np.fliplr(self.board_state))) == self.board_length: 
                 self.winner = True
                 self.game_over = True
-                print('\n', 'diagonal win //', self.game_over)
+                if verbose == True : print('\n', 'diagonal win //', self.game_over)
                 return True
 
             # Check if there's a tie
             if np.count_nonzero(self.board_state) == self.board_items_maximum:
                 self.winner = False
                 self.game_over = True
-                print('\n', 'tied game', self.game_over)
+                if verbose == True : print('\n', 'tied game', self.game_over)
                 return True
 
 # -------------------------------
@@ -69,21 +71,16 @@ class Agent:
     def reset_history(self):
         self.state_history = []
 
-    # def available_moves():
-        # return 
-        # if len(possible_moves) > 0:
-
-
     def take_action(self, env):
         # Finds the '0's on the board and returns their location via indices
         try:
             available_moves = np.transpose(np.where(env.board_state==0))
-            print('available moves\n', available_moves, '\n')
+            if verbose == True : print('available moves\n', available_moves, '\n')
             select_move = random.choice(available_moves)
-            print('player=', self.player,'selected move',select_move)
+            if verbose == True : print('player=', self.player,'selected move',select_move)
             env.board_state[select_move[0], select_move[1]] = self.player
         except:
-            print('no available moves')
+            if verbose == True : print('no available moves')
             quit()
 
 
@@ -91,12 +88,15 @@ class Agent:
 
 env = Environment(3)
 player_one = Agent(-1)
-player_two = Agent(.1)
+player_two = Agent(1)
 
-while env.game_over == False:
-    player_one.take_action(env)
-    print('\n', 'Game over?', env.episode_resolution(), '\n')
-    env.episode_resolution
-    player_two.take_action(env)
-    print('\n', 'Game over?', env.episode_resolution(), '\n')
-    print(env.board_state)
+def game_iteration(iterations):
+    for i in range(iterations):
+        while env.game_over == False:
+            player_one.take_action(env)
+            if verbose == True : print('\n', 'Game over?', env.episode_resolution(), '\n')
+            env.episode_resolution
+            player_two.take_action(env)
+            if verbose == True : print('\n', 'Game over?', env.episode_resolution(), '\n', env.board_state)
+
+game_iteration(2)
