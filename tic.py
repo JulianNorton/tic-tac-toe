@@ -8,7 +8,7 @@ verbose = True
 # Agent, Environment, State, Action, Reward, Episodes, Terminal State
 
 # -------------------------------
-# ENVIRONMENT
+# ENVIRONMENT defines the rules of the game
 # -------------------------------
 class Environment():
     def __init__(self, board_length):
@@ -20,6 +20,7 @@ class Environment():
         self.board_items_maximum = board_length*board_length
         # self.board_state[0] = 0
 
+    # Checking to see if there's a tie or anyone has won the game
     def episode_resolution(self):
         for i in range(self.board_length):
             # horizontal winner?
@@ -58,9 +59,8 @@ class Environment():
                 return True
 
 # -------------------------------
-# AGENT
+# AGENT plays the game
 # -------------------------------
-
 class Agent:
     def __init__(self, player, eps=0.1, alpha=0.5):
         self.eps = eps # probability of choosing random action instead of greedy
