@@ -11,6 +11,7 @@ verbose = True
 # ENVIRONMENT defines the rules of the game
 # -------------------------------
 class Environment():
+    # todo, make board length separate from win condition k ('in a row')
     def __init__(self, board_length):
         self.winner = None
         self.game_over = False
@@ -31,28 +32,28 @@ class Environment():
                 return True
 
             # vertical winner?
-            if abs(np.sum(self.board_state[:,i])) == self.board_length:
+            elif abs(np.sum(self.board_state[:,i])) == self.board_length:
                 self.winner = True
                 self.game_over = True
                 if verbose == True : print('\n', 'vertical win', self.game_over)
                 return True
                 
             # diagonal winner? \\ top left to bottom right
-            if abs(np.trace(self.board_state)) == self.board_length: 
+            elif abs(np.trace(self.board_state)) == self.board_length: 
                 self.winner = True
                 self.game_over = True
                 if verbose == True : print('\n', 'diagonal win \\ ', self.game_over)
                 return True
 
             # diagonal winner? // top right to bottom left
-            if abs(np.trace(np.fliplr(self.board_state))) == self.board_length: 
+            elif abs(np.trace(np.fliplr(self.board_state))) == self.board_length: 
                 self.winner = True
                 self.game_over = True
                 if verbose == True : print('\n', 'diagonal win //', self.game_over)
                 return True
 
             # Check if there's a tie
-            if np.count_nonzero(self.board_state) == self.board_items_maximum:
+            elif np.count_nonzero(self.board_state) == self.board_items_maximum:
                 self.winner = False
                 self.game_over = True
                 if verbose == True : print('\n', 'tied game', self.game_over)
