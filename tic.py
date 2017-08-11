@@ -21,6 +21,12 @@ class Environment():
         self.board_items_maximum = board_length*board_length
         # self.board_state[0] = 0
 
+
+    def reward(self):
+        if self.game_over == True:
+            return 1
+
+
     # Checking to see if there's a tie or anyone has won the game
     def episode_resolution(self):
         for i in range(self.board_length):
