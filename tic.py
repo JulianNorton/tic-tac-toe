@@ -72,12 +72,19 @@ class Agent:
     def reset_history(self):
         self.state_history = []
 
+    def evaluate_move(self, env):
+        legal_moves = np.transpose(np.where(env.board_state==0))
+        best_move = []
+        for i in legal_moves:
+            print(i)
+
+
     def take_action(self, env):
         # Finds the '0's on the board and returns their location via indices
         try:
-            available_moves = np.transpose(np.where(env.board_state==0))
-            if verbose == True : print('available moves\n', available_moves, '\n')
-            select_move = random.choice(available_moves)
+            legal_moves = np.transpose(np.where(env.board_state==0))
+            if verbose == True : print('available moves\n', legal_moves, '\n')
+            select_move = random.choice(legal_moves)
             if verbose == True : print('player=', self.player,'selected move',select_move)
             env.board_state[select_move[0], select_move[1]] = self.player
         except:
@@ -88,16 +95,17 @@ class Agent:
 # -------------------------------
 
 env = Environment(3)
-player_one = Agent(-1)
-player_two = Agent(1)
+player_ann = Agent(-1)
+player_bob = Agent(1)
 
 def game_iteration(iterations):
     for i in range(iterations):
         while env.game_over == False:
-            player_one.take_action(env)
+            player_ann.take_action(env)
             if verbose == True : print('\n', 'Game over?', env.episode_resolution(), '\n')
             env.episode_resolution
-            player_two.take_action(env)
+            player_bob.take_action(env)
             if verbose == True : print('\n', 'Game over?', env.episode_resolution(), '\n', env.board_state)
+            env.episode_resolution
 
-game_iteration(2)
+game_iteration(1)
