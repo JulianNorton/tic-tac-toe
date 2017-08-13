@@ -1,5 +1,6 @@
 import random
 import numpy as np
+import copy
 
 random.seed(0)
 
@@ -19,12 +20,12 @@ class Environment():
         empty_board = np.zeros((board_length, board_length))
         self.board_state = empty_board
         self.board_items_maximum = board_length*board_length
-        # self.board_state[0] = 0
-
 
     def reward(self):
         if self.game_over == True:
             return 1
+        else:
+            return -1
 
 
     # Checking to see if there's a tie or anyone has won the game
@@ -72,27 +73,40 @@ class Agent:
     def __init__(self, player, eps=0.1, alpha=0.5):
         self.eps = eps # probability of choosing random action instead of greedy
         self.alpha = alpha # learning rate
-        self.state_history = []
+        # TODO, make state history matter.
+        self.state_history = [] 
+        # player value, -1 or 1. 
         self.player = player
 
     def reset_history(self):
         self.state_history = []
 
+    # Evaluate moves to determine best move for next action
     def evaluate_move(self, env):
+        # TODO, don't repeat legal moves
         legal_moves = np.transpose(np.where(env.board_state==0))
-        best_move = []
+        # copies current state to explore actions
+        future_state = copy.deepcopy(env)
+        # Loops through all legal moves
         for i in legal_moves:
-            print(i)
-
-
+            # i returns a coordinate like [0 2]
+            future_state.board_state[i[0], i[1]] = self.player
+            # Reward returns a negative value if no win condition met
+            # Positive reward if there is a win condition
+            if future_state.episode_resolution() == True:
+                current_move = i
+                # end loop if a good move has been found
+                return current_move
+            else:
+                future_state.board_state[i[0], i[1]] = 0
+        # If no best move found, return a random move
+        current_move = random.choice(legal_moves)
+        return current_move
+            
     def take_action(self, env):
-        # Finds the '0's on the board and returns their location via indices
         try:
-            legal_moves = np.transpose(np.where(env.board_state==0))
-            if verbose == True : print('available moves\n', legal_moves, '\n')
-            select_move = random.choice(legal_moves)
-            if verbose == True : print('player=', self.player,'selected move',select_move)
-            env.board_state[select_move[0], select_move[1]] = self.player
+            current_move = self.evaluate_move(env)
+            env.board_state[current_move[0],current_move[1]] = self.player
         except:
             if verbose == True : print('no available moves')
             quit()
@@ -104,14 +118,18 @@ env = Environment(3)
 player_ann = Agent(-1)
 player_bob = Agent(1)
 
+
 def game_iteration(iterations):
     for i in range(iterations):
         while env.game_over == False:
             player_ann.take_action(env)
-            if verbose == True : print('\n', 'Game over?', env.episode_resolution(), '\n')
-            env.episode_resolution
+            if env.episode_resolution() == True:
+                if verbose == True : print('\n', 'Game!', env.episode_resolution(), '\n')
+                break
             player_bob.take_action(env)
-            if verbose == True : print('\n', 'Game over?', env.episode_resolution(), '\n', env.board_state)
-            env.episode_resolution
+            if env.episode_resolution() == True:
+                if verbose == True : print('\n', 'Game!', env.episode_resolution(), '\n')
+            if verbose == True : print(env.board_state, '\n', 'Current state', env.episode_resolution(), '\n')
+    print(env.board_state)
 
 game_iteration(1)
