@@ -2,24 +2,25 @@ import random
 import numpy as np
 import copy
 
-random.seed(0)
-
-verbose = True
-
 # Agent, Environment, State, Action, Reward, Episodes, Terminal State
 
 # -------------------------------
 # ENVIRONMENT defines the rules of the game
 # -------------------------------
 class Environment():
-    # todo, make board length separate from win condition k ('in a row')
-    def __init__(self, board_length):
+    def __init__(self, board_length, win_condition):
         self.winner = None
         self.game_over = False
         self.board_length = board_length
-        empty_board = np.zeros((board_length, board_length))
-        self.board_state = empty_board
+        # Length separate from win condition k ('in a row')
+        self.win_condition = win_condition
+        self.board_state = np.zeros((self.board_length, self.board_length))
         self.board_items_maximum = board_length*board_length
+
+    def reset_board(self):
+        self.board_state = np.zeros((self.board_length, self.board_length))
+        self.winner = None
+        self.game_over = False
 
     def reward(self):
         if self.game_over == True:
@@ -27,33 +28,33 @@ class Environment():
         else:
             return -1
 
-
     # Checking to see if there's a tie or anyone has won the game
+    # TODO, IF, THEN ITERATE. Right now board length must == in-a-row.
     def episode_resolution(self):
         for i in range(self.board_length):
             # horizontal winner?
-            if abs(np.sum(self.board_state[i])) == self.board_length:
+            if abs(np.sum(self.board_state[i])) == self.win_condition:
                 self.winner = True
                 self.game_over = True
                 if verbose == True : print('\n', 'horizontal win', self.game_over)
                 return True
 
             # vertical winner?
-            elif abs(np.sum(self.board_state[:,i])) == self.board_length:
+            elif abs(np.sum(self.board_state[:,i])) == self.win_condition:
                 self.winner = True
                 self.game_over = True
                 if verbose == True : print('\n', 'vertical win', self.game_over)
                 return True
                 
             # diagonal winner? \\ top left to bottom right
-            elif abs(np.trace(self.board_state)) == self.board_length: 
+            elif abs(np.trace(self.board_state)) == self.win_condition: 
                 self.winner = True
                 self.game_over = True
                 if verbose == True : print('\n', 'diagonal win \\ ', self.game_over)
                 return True
 
             # diagonal winner? // top right to bottom left
-            elif abs(np.trace(np.fliplr(self.board_state))) == self.board_length: 
+            elif abs(np.trace(np.fliplr(self.board_state))) == self.win_condition: 
                 self.winner = True
                 self.game_over = True
                 if verbose == True : print('\n', 'diagonal win //', self.game_over)
@@ -91,12 +92,13 @@ class Agent:
         for i in legal_moves:
             # i returns a coordinate like [0 2]
             future_state.board_state[i[0], i[1]] = self.player
-            # Reward returns a negative value if no win condition met
-            # Positive reward if there is a win condition
+            # TODO Reward returns a negative value if no win condition met
+            # future_state.winner == True
+            # TODO Positive reward if there is a win condition
             if future_state.episode_resolution() == True:
                 current_move = i
                 # end loop if a good move has been found
-                return current_move
+                break
             else:
                 future_state.board_state[i[0], i[1]] = 0
         # If no best move found, return a random move
@@ -104,32 +106,53 @@ class Agent:
         return current_move
             
     def take_action(self, env):
-        try:
-            current_move = self.evaluate_move(env)
-            env.board_state[current_move[0],current_move[1]] = self.player
-        except:
-            if verbose == True : print('no available moves')
-            quit()
+        current_move = self.evaluate_move(env)
+        env.board_state[current_move[0],current_move[1]] = self.player
 
 
 # -------------------------------
 
-env = Environment(3)
+# TODO, make this into a class object, iterations, environment, and agent as inputs
+def game_iterations(iterations):
+    for i in range(iterations):
+        # Ann always goes first, tough shit for Bob.
+        current_player = player_ann.player
+        while env.game_over == False:
+            if current_player == player_ann.player:
+                player_ann.take_action(env)
+                if verbose == True : print(env.board_state, 'ann just made move \n')
+                # Check to see if the game is over
+                if env.episode_resolution() == True:
+                    if verbose == True : print('\n', 'Game Over!', env.episode_resolution(), '\n')
+                    break
+                # Now it's Bob's turn
+                current_player = player_bob.player
+            if current_player == player_bob.player:
+                player_bob.take_action(env)
+                if verbose == True : print(env.board_state, 'bob just made move \n')
+                # Check to see if the game is over
+                if env.episode_resolution() == True:
+                    if verbose == True : print('\n', 'Game Over!', env.episode_resolution(), '\n')
+                    break
+                # Now it's Ann's turn
+                current_player = player_ann.player
+        # Who won this iteration?
+        if verbose == True : print('Agent', current_player, ', won')
+        print(env.board_state, '\n\n')
+        # TODO, reduce this duplication and make it not suck.
+        player_ann.state_history.append(('Tie?',not env.winner, 'last player to move', current_player))
+        # player_bob.state_history.append(('Tie?',not env.winner, 'last player to move', current_player))
+        # Reset the board
+        env.reset_board()
+
+
+random.seed(0)
+verbose = True
+env = Environment(3, 3)
 player_ann = Agent(-1)
 player_bob = Agent(1)
 
+game_iterations(12)
 
-def game_iteration(iterations):
-    for i in range(iterations):
-        while env.game_over == False:
-            player_ann.take_action(env)
-            if env.episode_resolution() == True:
-                if verbose == True : print('\n', 'Game!', env.episode_resolution(), '\n')
-                break
-            player_bob.take_action(env)
-            if env.episode_resolution() == True:
-                if verbose == True : print('\n', 'Game!', env.episode_resolution(), '\n')
-            if verbose == True : print(env.board_state, '\n', 'Current state', env.episode_resolution(), '\n')
-    print(env.board_state)
-
-game_iteration(1)
+for i in player_ann.state_history:
+    print(i)
