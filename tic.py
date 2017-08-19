@@ -97,8 +97,7 @@ class Agent:
             # TODO Positive reward if there is a win condition
             if future_state.episode_resolution() == True:
                 current_move = i
-                # end loop if a good move has been found
-                break
+                return current_move
             else:
                 future_state.board_state[i[0], i[1]] = 0
         # If no best move found, return a random move
@@ -115,44 +114,56 @@ class Agent:
 # TODO, make this into a class object, iterations, environment, and agent as inputs
 def game_iterations(iterations):
     for i in range(iterations):
-        # Ann always goes first, tough shit for Bob.
-        current_player = player_ann.player
+        # Only print every 100 iterations.
+        if i % 100 == 0 : print(i)
         while env.game_over == False:
-            if current_player == player_ann.player:
-                player_ann.take_action(env)
-                if verbose == True : print(env.board_state, 'ann just made move \n')
-                # Check to see if the game is over
-                if env.episode_resolution() == True:
-                    if verbose == True : print('\n', 'Game Over!', env.episode_resolution(), '\n')
-                    break
-                # Now it's Bob's turn
-                current_player = player_bob.player
-            if current_player == player_bob.player:
-                player_bob.take_action(env)
-                if verbose == True : print(env.board_state, 'bob just made move \n')
-                # Check to see if the game is over
-                if env.episode_resolution() == True:
-                    if verbose == True : print('\n', 'Game Over!', env.episode_resolution(), '\n')
-                    break
-                # Now it's Ann's turn
-                current_player = player_ann.player
+
+            # Ann always goes first, tough shit for Bob.
+            current_player = player_ann.player
+            player_ann.take_action(env)
+            if verbose == True : print(env.board_state, 'ann just made move \n')
+
+            # Check to see if the game is over
+            if env.episode_resolution() == True:
+                if verbose == True : print('\n', 'Game Over!', env.episode_resolution(), '\n')
+                break
+
+            # Now it's Bob's turn
+            current_player = player_bob.player
+            player_bob.take_action(env)
+            if verbose == True : print(env.board_state, 'bob just made move \n')
+
+            # Check to see if the game is over
+            if env.episode_resolution() == True:
+                if verbose == True : print('\n', 'Game Over!', env.episode_resolution(), '\n')
+                break
+
         # Who won this iteration?
-        if verbose == True : print('Agent', current_player, ', won')
-        print(env.board_state, '\n\n')
+        if verbose == True : print('Agent', current_player, ', won', '\n', env.board_state, '\n\n')
         # TODO, reduce this duplication and make it not suck.
-        player_ann.state_history.append(('Tie?',not env.winner, 'last player to move', current_player))
+        # First value is tie state, true or false, then player who last moved.
+        player_ann.state_history.append((not env.winner, current_player))
         # player_bob.state_history.append(('Tie?',not env.winner, 'last player to move', current_player))
         # Reset the board
         env.reset_board()
 
 
 random.seed(0)
-verbose = True
+verbose = False
 env = Environment(3, 3)
 player_ann = Agent(-1)
 player_bob = Agent(1)
 
-game_iterations(12)
+game_iterations(1000)
 
-for i in player_ann.state_history:
-    print(i)
+# print(player_ann.state_history[0][0])
+# print(player_ann.state_history)
+print('Ann has won', player_ann.state_history.count((False, -1)))
+print('Bob has won', player_ann.state_history.count((False, 1)))
+# Ann will be current_player on even board lengths
+# Bob will be current_player on even board lengths
+print('Tie games', player_ann.state_history.count((True, -1)) + player_ann.state_history.count((True, 1)))
+
+# for i in player_ann.state_history:
+    # print(i)
+
