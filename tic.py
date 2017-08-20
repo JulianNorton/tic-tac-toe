@@ -92,20 +92,60 @@ class Agent:
         for i in legal_moves:
             # i returns a coordinate like [0 2]
             future_state.board_state[i[0], i[1]] = self.player
+            # print(self.player)
             # TODO Reward returns a negative value if no win condition met
             # future_state.winner == True
             # TODO Positive reward if there is a win condition
             if future_state.episode_resolution() == True:
                 current_move = i
                 return current_move
-            else:
-                future_state.board_state[i[0], i[1]] = 0
+            future_state.board_state[i[0], i[1]] = 0
         # If no best move found, return a random move
         current_move = random.choice(legal_moves)
         return current_move
             
     def take_action(self, env):
         current_move = self.evaluate_move(env)
+        env.board_state[current_move[0],current_move[1]] = self.player
+
+    # Todo, TIMEIT to improve performance.
+    # ----------------------
+    # EVALUATING 2nd VERSION
+    def evaluate_move_v2(self, env):
+        legal_moves = np.transpose(np.where(env.board_state==0))
+        possible_moves = legal_moves
+        future_state = copy.deepcopy(env)
+        
+        # Loops through all legal moves
+        for i in legal_moves:
+            future_state.board_state[i[0], i[1]] = self.player
+            if future_state.episode_resolution() == True:
+                current_move = i
+                if verbose == True : print('returning winning move')
+                return current_move
+            future_state.board_state[i[0], i[1]] = 0
+        # v2 part
+        if self.player == -1:
+            other_player = 1
+        elif self.player == 1:
+            other_player = -1
+
+        other_player_possible_moves = np.transpose(np.where(future_state.board_state==0))
+        for i in other_player_possible_moves:
+            future_state = copy.deepcopy(env)
+            future_state.board_state[i[0], i[1]] = other_player
+            if future_state.episode_resolution() == True:
+                # Need to block winning move by other player
+                if verbose == True : print('blocking move')
+                current_move = i
+                return current_move
+        # If no best move found, return a random move
+        if verbose == True : print('retuning random move')
+        current_move = random.choice(legal_moves)
+        return current_move
+
+    def take_action_v2(self, env):
+        current_move = self.evaluate_move_v2(env)
         env.board_state[current_move[0],current_move[1]] = self.player
 
 
@@ -117,10 +157,9 @@ def game_iterations(iterations):
         # Only print every 100 iterations.
         if i % 100 == 0 : print(i)
         while env.game_over == False:
-
             # Ann always goes first, tough shit for Bob.
             current_player = player_ann.player
-            player_ann.take_action(env)
+            player_ann.take_action_v2(env)
             if verbose == True : print(env.board_state, 'ann just made move \n')
 
             # Check to see if the game is over
@@ -130,7 +169,7 @@ def game_iterations(iterations):
 
             # Now it's Bob's turn
             current_player = player_bob.player
-            player_bob.take_action(env)
+            player_bob.take_action_v2(env)
             if verbose == True : print(env.board_state, 'bob just made move \n')
 
             # Check to see if the game is over
@@ -149,19 +188,19 @@ def game_iterations(iterations):
 
 
 random.seed(0)
-verbose = False
+verbose = True
 env = Environment(3, 3)
 player_ann = Agent(-1)
 player_bob = Agent(1)
 
-game_iterations(1000)
+game_iterations(500)
 
 # print(player_ann.state_history[0][0])
 # print(player_ann.state_history)
 print('Ann has won', player_ann.state_history.count((False, -1)))
 print('Bob has won', player_ann.state_history.count((False, 1)))
 # Ann will be current_player on even board lengths
-# Bob will be current_player on even board lengths
+# Bob will be current_player on even odd lengths
 print('Tie games', player_ann.state_history.count((True, -1)) + player_ann.state_history.count((True, 1)))
 
 # for i in player_ann.state_history:
